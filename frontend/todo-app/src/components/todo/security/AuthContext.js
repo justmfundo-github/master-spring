@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { executeBasicAuthenticationService } from "../api/HelloWorldApiService";
+import { executeJWTAuthenticationService } from "../api/AuthenticationApiService";
 import { apiClient } from "../api/ApiClient";
 
 //Create a Context
@@ -27,20 +27,48 @@ export default function AuthProvider({ children }) {
   //   }
   // }
 
-  async function login(username, password) {
-    const basicAuthToken = "Basic " + window.btoa(username + ":" + password);
+  // async function login(username, password) {
+  //   const basicAuthToken = "Basic " + window.btoa(username + ":" + password);
 
+  //   try {
+  //     const response = await executeBasicAuthenticationService(basicAuthToken);
+
+  //     if (response.status == 200) {
+  //       setAuthenticated(true);
+  //       setUsername(username);
+  //       setToken(basicAuthToken);
+
+  //       apiClient.interceptors.request.use((config) => {
+  //         console.log("Intercepting and adding a token");
+  //         config.headers.Authorization = basicAuthToken;
+  //         return config;
+  //       });
+
+  //       return true;
+  //     } else {
+  //       logout();
+  //       return false;
+  //     }
+  //   } catch (error) {
+  //     logout();
+  //     return false;
+  //   }
+  // }
+
+  async function login(username, password) {
     try {
-      const response = await executeBasicAuthenticationService(basicAuthToken);
+      const response = await executeJWTAuthenticationService(username, password);
 
       if (response.status == 200) {
+        const jwtToken = "Bearer " + response.data.token;
+
         setAuthenticated(true);
         setUsername(username);
-        setToken(basicAuthToken);
+        setToken(jwtToken);
 
         apiClient.interceptors.request.use((config) => {
           console.log("Intercepting and adding a token");
-          config.headers.Authorization = basicAuthToken;
+          config.headers.Authorization = jwtToken;
           return config;
         });
 
